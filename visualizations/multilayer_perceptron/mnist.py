@@ -1,32 +1,11 @@
 import argparse
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
 
-
-class Net(nn.Module):
-    def __init__(self):
-        super(Net, self).__init__()
-        self.fc1 = nn.Linear(28 * 28, 1000)
-        self.fc2 = nn.Linear(1000, 1000)
-        self.fc3 = nn.Linear(1000, 1000)
-        self.fc4 = nn.Linear(1000, 10)
-
-    def forward(self, x):
-        x = torch.flatten(x, 1)
-        x = self.fc1(x)
-        x = F.relu(x)
-        x = self.fc2(x)
-        x = F.relu(x)
-        x = self.fc3(x)
-        x = F.relu(x)
-        x = self.fc4(x)
-        x = F.relu(x)
-        output = F.log_softmax(x, dim=1)
-        return output
+from net import Net
 
 
 def train(args, model, device, train_loader, optimizer, epoch):
@@ -85,8 +64,6 @@ parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
 parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                     help='how many batches to wait before logging training status')
-parser.add_argument('--save-model', action='store_true', default=False,
-                    help='For Saving the current Model')
 args = parser.parse_args()
 use_cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -121,8 +98,7 @@ for epoch in range(1, args.epochs + 1):
     test(model, device, test_loader)
     scheduler.step()
 
-if args.save_model:
-    torch.save(model.state_dict(), "mnist.pth")
+torch.save(model.state_dict(), "mnist.pth")
 
 
 ##
@@ -158,4 +134,4 @@ fc2 = np.array(fc2)
 fc3 = np.array(fc3)
 fc4 = np.array(fc4)
 output = np.array(output)
-np.savez('activity.npz', dict(input=input, fc1=fc1, fc2=fc2, fc3=fc3, fc4=fc4, output=output))
+np.savez('activity.npz', input=input, fc1=fc1, fc2=fc2, fc3=fc3, fc4=fc4, output=output,)
