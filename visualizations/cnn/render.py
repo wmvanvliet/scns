@@ -22,18 +22,22 @@ img_input.actor.position = [0, 0, 0]
 img_input.actor.force_opaque = True
 
 # Conv1
+img_conv1 = list()
 for row in range(6):
     for col in range(6):
-        img_conv1 = mlab.imshow(act_conv1[row * 6 + col], colormap='gray', interpolate=False)
-        img_conv1.actor.position = [(row - 2.5) * 26, (col - 2.5) * 26, 50]
-        img_conv1.actor.force_opaque = True
+        img = mlab.imshow(act_conv1[row * 6 + col], colormap='gray', interpolate=False)
+        img.actor.position = [(row - 2.5) * 26, (col - 2.5) * 26, 50]
+        img.actor.force_opaque = True
+        img_conv1.append(img)
 
 # Conv2
+img_conv2 = list()
 for row in range(8):
     for col in range(8):
-        img_conv2 = mlab.imshow(act_conv2[row * 8 + col], colormap='gray', interpolate=False)
-        img_conv2.actor.position = [(row - 3.5) * 12, (col - 3.5) * 12, 100]
-        img_conv2.actor.force_opaque = True
+        img = mlab.imshow(act_conv2[row * 8 + col], colormap='gray', interpolate=False)
+        img.actor.position = [(row - 3.5) * 12, (col - 3.5) * 12, 100]
+        img.actor.force_opaque = True
+        img_conv2.append(img)
 
 # Create the points
 conv2_x = list()
@@ -67,7 +71,7 @@ s = np.hstack([
     act_fc1 / np.max(act_fc1),
     1 - (act_out / np.max(act_out)),
 ])
-acts = mlab.points3d(x[len(conv2_x):], y[len(conv2_x):], z[len(conv2_x):], s[len(conv2_x):], mode='cube', scale_factor=1, scale_mode='none', colormap='gray')
+acts = mlab.points3d(x[len(act_conv2.ravel()):], y[len(act_conv2.ravel()):], z[len(act_conv2.ravel()):], s[len(act_conv2.ravel()):], mode='cube', scale_factor=1, scale_mode='none', colormap='gray')
 
 # Connections between the layers
 fc1 = model.fc1.weight.detach().numpy().T
@@ -91,15 +95,19 @@ src.update()
 lines = mlab.pipeline.stripper(src)
 connections = mlab.pipeline.surface(lines, colormap='gray', line_width=1, opacity=0.2)
 
+mlab.view(-90, 90, 475, [-0.5, -0.5, 100.75])
+
 # Update the data and view
 @mlab.animate(delay=83, ui=True)
 def anim():
     for frame in tqdm(list(range(1600))):
         if frame % 16 == 0:
             i = frame // 16
-            act_input = activity['input'][i]
-            act_conv1 = activity['conv1'][i]
-            act_conv2 = activity['conv2'][i]
+            img_input.mlab_source.scalars = activity['input'][i][0]
+            for img, a in zip(img_conv1, activity['conv1'][i]):
+                img.mlab_source.scalars = a
+            for img, a in zip(img_conv2, activity['conv2'][i]):
+                img.mlab_source.scalars = a
             act_fc1 = activity['fc1'][i]
             act_out = activity['output'][i]
             s = np.hstack((
@@ -107,10 +115,10 @@ def anim():
                 act_fc1 / act_fc1.max(),
                 1 - (act_out / act_out.max())
             ))
-            acts.mlab_source.scalars = s
+            acts.mlab_source.scalars = s[len(act_conv2.ravel()):]
             connections.mlab_source.scalars = s
         #mlab.view(azimuth=(frame / 2) % 360, elevation=80, distance=120, focalpoint=[0, 35, 0], reset_roll=False)
         #mlab.savefig(f'/l/vanvlm1/scns/frame{frame:04d}.png')
         yield
 
-#anim()
+anim()
