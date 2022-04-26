@@ -53,6 +53,47 @@ But in order to appreciate what these models are trying to accomplish, we must f
 Models of representation aim to organize data in such a way as it might be organized in the brain.
 They are only concerned with simulating the final organization, not how this organization comes about.
 In contrast, models of *processing* aim to model how the brain transforms data from one representation into another.
-I will first show you a couple of models of representation and then we'll get into models of processing.
 
-This is an 
+
+I will first show you a couple of models of semantic representation and then we'll get into models of processing.
+
+
+In a famous experiment, published in 1980, Marta Kutas and Steven Hillyard, presented volunteers with sentences  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
