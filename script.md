@@ -73,6 +73,16 @@ The volunteers have been presented with a cue word and were asked to write down 
 We can then draw connections between words based on their responses.
 In such a model, whenever a concept is activated, connected concepts are co-activated, which in turn activate even more concepts, bringing about a rich semantic representation.
 
+This network view of semantics has been useful for modeling a phenomenon in the brain known as "semantic priming".
+You have already seen semantic priming at work during Riitta Salmelin's overview.
+When a word is not expected, based on the words that preceeded it, there is a larger burst of activity in the temporal cortex.
+But semantic priming does not require complete sentences.
+It also works when showing a word pair, just two words that are either related or unrelated.
+You are looking here as some data recorded with EEG instead of MEG, so the N400 looks different, but the priming effect is the same.
+So, reading even a single word already influences how your brain will process related words in the future.
+If we want to model this effect using our network, we can activate the first word in the model and simulate the amount of co-activation of the second word.
+The amount of co-activation that we simulated is a good indicator for the strength of the priming effect we observe in the brain reponse.
+
 In the Small World of Words model, connections can be drawn between any two words.
 We could however try to organize the connections a bit more.
 Here is a network model proposed by David Rumelhart and Peter Todd in 1993.
@@ -81,13 +91,119 @@ Each noun maps to a combination of "attributes", here shown on the right.
 Which types of attributes are activated is modulated by these relationship types shown at the bottom.
 For example, if we activate the noun Canary and the relationship type "CAN", we activate the attributes "Can Grow" "Can Move" "Can Fly" and "Can Sing".
 To achieve this, there are additional nodes in this network that do not represent words or concepts, but merely function as connection hubs for spreading activation.
-Such nodes are called "hidden nodes".
+Such nodes are called "hidden nodes", we will see more of them in others models.
 
-One way to study semantics in the brain is through the phenomenon of semantic priming.
-You have already seen semantic priming at work during Riitta Salmelin's overview.
-When a word is not expected, based on the words that preceeded it, there is a larger burst of activity in the temporal cortex.
-This semantic priming effect does not require complete sentences.
-It also works when showing a word pair, two words that are either related or unrelated.
-Reading even a single word already influences how you will process related words in the future.
-Going back to the EEG responses to word pairs...
-If we activate the first word in the model and measure the amount of co-activation of the second word, we obtain a good indicator for the strength of the priming effect we observe in the EEG reponse.
+A group of nodes is called a "layer", we will also see more of those in other models.
+Now, this model is more powerful than our initial network model in two ways.
+First, we can model different kind of relationships between concepts, which is always useful.
+But second, this layer on the right, the "attributes" layer, holds a pretty efficient representation of the meaning of a concept.
+Each concept is represented as a unique combination of attributes.
+A SPUR is a TREE, TALL, GREEN, has BARK and ROOTS, and so on.
+GRASS is also GREEN and has ROOTS, but is a PLANT rather than a TREE and is not TALL, and so on.
+Even with a limited set of attributes, we can represent a great number of different concepts.
+
+Can you think of a way to simulate the semantic priming effect in this model?
+
+Here is one way:
+We could have attributes stay active for a while.
+When a new word is presented that shares many of the same attributes as the preceding words, those attributes will have been pre-activated, hence the word will be processed faster.
+
+Representing concepts as a collection of attributes is pretty efficient.
+But there is even a more efficient way.
+And that is this "hidden layer" here.
+All activity passes through this layer on its way to the "attribute layer", so all the information needed to identify a concept must already be present at this stage.
+And there are far fewer nodes in this hidden layer than in the attribute layer.
+The nodes in this layer form what we call a "semantic embedding space" and this is currently one of the most popular ways to represent the meaning of concepts.
+To get an intuition for what is going on this layer, its best to leave this model behind for now and talk about another model called "word2vec".
+
+The "word2vec" model was developed by a research team at Google, led by Tomas Mikolov, and published in 2003.
+The way it works is a follows.
+We read in a large amount of text. Books, news articles, subtitles from television programs, anything we can get our hands on.
+We take all the unique words we've encountered in the text, usually a couple of million, and assign them a random position in a space which we call the "semantic embedding space".
+Here I am drawing a 3-dimensional embedding space so its easy to visualize, but usually you take a space with many dimensions.
+Now we go over the text again and every time two words occur together in the same sentence, we move those words a little closer together in the embedding space.
+And every once in a while, we stop and move words that have never occured together a little further apart.
+We keep doing this until we read all of the text we had collected, and for good measure, start from the beginning of the text again and again until the positions of the words in the embedding space no longer change much.
+At that point, we say that the model has "converged".
+The resulting positions of the words in the embedding space have very interesting properties.
+
+First of all, we have achieved a very efficient representation, as we can identify millions of individual words just by their coordinates in the embedding space.
+Again, I've used only 3 dimensions in this example, so each word is represented by only 3 numbers, but in a real model you would use about 300 dimensions.
+
+A second interesting property of this model is that words that are in close proximity are frequently used either in the same sentence or are frequently used in the same contexts.
+Words that are close in the embedding space have a similar meaning.
+
+A third interesting property of this model is that directions in the embedding space have meaning too.
+This is something you will explore on your own during an exercise I will introduce at the end of this lecture.
+
+Now that you are familiar with the concept of an embedding space, I can explain what is going on inside the hidden layer of the previous model.
+Each node in this layer represents one of the dimensions of an embedding space.
+Together, the activation across these nodes represents the location of a concept in the embedding space.
+There!
+
+Lets now look at how embedding spaces, such as this word2vec space, are used as models of representation for semantics in the brain.
+I'd like to illustrate this with some fMRI data that was collected by Sasa Kivisaari et al., published in 2019.
+During this study, the participants were asked to solve little riddles as a way to make them focus on different concepts.
+For example, to get them to focus on the concept of a "banana", they would be told to think about something that was yellow, sweet and eaten by monkeys.
+So here is the brain activity as the participant was focusing in a banana, as recorded through fMRI.
+And here is the brain activity for a helicopter.
+And a cow.
+On the left, you see a semantic embedding space, projected down to 2 dimensions for easy visualization.
+You can see the original 300-dimensional coordinate of the word as a bar graph below the brain.
+Now here's the interesting thing:
+The closer words are in the embedding space, the more similar the corresponding brain activity patterns.
+In a way, the brain activity we record acts as an embedding space of its own.
+If you treak every voxel as a dimension in embedding space, you get an embedding space with a crazy high dimensionality, and the pattern of activity across the voxels represents a location in this embedding space.
+So now we have two embedding spaces, the one we created with the word2vec algorithm using a large amount of text, and the one defined by the brain activity.
+The former acts as a computational model for the latter.
+By creating a linear mapping from the word2vec embedding space to the brain activity embedding space, we can predict the brain activity pattern of a word, based on its location in word2vec space.
+
+In 2016, Huth et al. published a study that explores the possibilities of such a mapping in detail.
+They collected brain activation patterns in response to many words by having participants listen to stories in an fMRI scanner.
+Using machine learning, they created a mapping between a word2vec embedding space and brain activity patterns.
+The model could predict the activity in some areas of the brain better than others.
+Notably, activity in the areas associated with semantic processing was predicted best.
+The proceeded to examine for each voxel in the brain, the words that activated that voxel the strongest.
+And they found that each voxel has a preference for words from within a certain region of the word2vec embedding space.
+We already saw that words that are close together in embedding space are similar in meaning.
+So what the authors of the study did was assign category labels to different regions of the embedding space.
+You can see them at the bottom left.
+They gave each category a different color.
+Now, a preference for words from a certain region becomes preference for a category.
+Voxels can thus be assigned a preference for a certain category, yielding this pretty semantic atlas of which part of the brain have a preference for which categories.
+This voxel is most active for words related to visual features.
+And this one for words concerning relationships.
+And this one to numbers.
+Admittedly, this is streching the mapping between the computational model and the brain activity a bit far and I'm not certain how accurate this truly is.
+But it does demonstrate how far you can take computational models of representation.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
